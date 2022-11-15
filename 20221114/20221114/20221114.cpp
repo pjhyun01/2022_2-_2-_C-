@@ -112,6 +112,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+
 //
 //  함수: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -123,12 +124,37 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 RECT x;
-
 RECT y;
+RECT is;
 
 int g_timer;
-
 int z = 0;
+int p_jump = 0;
+
+DWORD WINAPI gravity(LPVOID param)
+{
+    HWND hWnd;
+
+    if (false == IntersectRect(&is, &x, &y))
+    {
+        if (z < 4)
+        {
+            z += 1;
+
+        }
+        x.top += z;
+        x.bottom += z;
+        //InvalidateRect(hWnd, NULL, true);
+    }
+    else
+    {
+        z = 0;
+        p_jump = 0;
+    }
+
+    ExitThread(0);
+    return(0);
+}
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -157,82 +183,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         switch (wParam)
         {
         case VK_LEFT:
-            if (x.left > y.left)
-            {
-                x.left -= 10;
-                x.right -= 10;
-                break;
-            }
-            else
-            {
-                break;
-            }
+
+            x.left -= 4;
+            x.right -= 4;
+            break;
+
         case VK_RIGHT:
-            if (x.right < y.right)
+            for(int i = 0; i < 10; i++)
             {
                 x.left += 10;
                 x.right += 10;
-                break;
+                InvalidateRect(hWnd, NULL, true);
             }
-            else
-            {
-                break;
-            }
+            break;
 
         case VK_SPACE:
-            if (x.top < y.top)
+
+            if(p_jump == 0)
             {
-                if (z < 10)
-                {
-                    z += 1;
-                    break;
-                }
-                else
-                {
-                    break;
-                }
-                x.top += z;
-                x.bottom += z;
-               
-                break;
+                x.top -= 4;
+                x.bottom -= 4;
+                z = -16;
+                p_jump = 1;
             }
-            else
-            {
-                z = 0;
-                break;
-            }
+            break;
+
         }
-        InvalidateRect(hWnd, NULL, true);
-        
     }
     break;
 
     case WM_TIMER: 
     {
-        if (g_timer >= 200)
-            g_timer -= 100;
-        KillTimer(hWnd, 1);
-        SetTimer(hWnd, 1, g_timer, NULL);
 
         if (1 == wParam)
         {
-            if (x.bottom < y.top)
-            {
-                if (z < 10)
-                {
-                    z += 1;
-
-                }
-                x.top += z;
-                x.bottom += z;
-                InvalidateRect(hWnd, NULL, true);
-                
-            }
-            else
-            {
-                z = 0;
-                
-            }
+            CreateThread(NULL, 0, gravity, (LPVOID)lParam, 0, NULL);
         }
         InvalidateRect(hWnd, NULL, true);
     }
@@ -240,7 +225,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     case WM_CREATE:
     {
-        g_timer = 1000;
+        p_jump = 0;
+        g_timer = 1;
         SetTimer(hWnd, 1, g_timer, NULL);
 
         y.left = 10;
@@ -261,13 +247,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
+
         HDC hdc = BeginPaint(hWnd, &ps);
         // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+
         Rectangle(hdc, y.left, y.top, y.right, y.bottom);
-
         Rectangle(hdc, x.left, x.top, x.right, x.bottom);
-
-        EndPaint(hWnd, &ps);
+        
     }
     break;
     case WM_DESTROY:
