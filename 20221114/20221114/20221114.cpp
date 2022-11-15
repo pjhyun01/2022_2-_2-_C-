@@ -134,6 +134,7 @@ RECT is;
 int g_timer;
 int z = 0;
 int p_jump = 0;
+int g_speed = 0;
 
 BOOL KeyBuffer[256];
 
@@ -161,12 +162,15 @@ DWORD WINAPI moving(LPVOID param)
 
 DWORD WINAPI gravity(LPVOID param)
 {
-    HWND hWnd;
     if (KeyBuffer[VK_SHIFT] == FALSE)
     {
         if (false == IntersectRect(&is, &x, &y))
         {
-            if (z < 4)
+            if (z == 0) 
+            {
+                z += 5;
+            }
+            else if (z <= 10)
             {
                 z += 1;
 
@@ -191,6 +195,7 @@ DWORD WINAPI gravity(LPVOID param)
                 p_jump = 1;
             }
         }
+
     }
     
 
@@ -200,12 +205,16 @@ DWORD WINAPI gravity(LPVOID param)
 
 DWORD WINAPI re_gravity(LPVOID param)
 {
-    HWND hWnd;
     if (KeyBuffer[VK_SHIFT] == TRUE)
     {
+        
         if (false == IntersectRect(&is, &x, &y_2))
         {
-            if (z < 4)
+            if (z == 0)
+            {
+                z += 5;
+            }
+            else if (z <= 10)
             {
                 z += 1;
 
@@ -355,8 +364,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         x.left = 10;
         x.top = 200;
-        x.right = 50;
-        x.bottom = 240;
+        x.right = 30;
+        x.bottom = 230;
 
 
 
