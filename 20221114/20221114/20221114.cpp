@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "20221114.h"
 #include <thread>
+#include <vector>
 
 #define MAX_LOADSTRING 100
 
@@ -125,33 +126,113 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 RECT x;
 RECT y;
+RECT y_2;
 RECT is;
+
+
 
 int g_timer;
 int z = 0;
 int p_jump = 0;
 
+BOOL KeyBuffer[256];
+
+
+
+DWORD WINAPI moving(LPVOID param)
+{
+    if (KeyBuffer[VK_LEFT])
+    {
+        x.left -= 4;
+        x.right -= 4;
+    }
+
+    if (KeyBuffer[VK_RIGHT])
+    {
+        x.left += 4;
+        x.right += 4;
+    }
+
+    
+
+    ExitThread(0);
+    return(0);
+}
+
 DWORD WINAPI gravity(LPVOID param)
 {
     HWND hWnd;
-
-    if (false == IntersectRect(&is, &x, &y))
+    if (KeyBuffer[VK_SHIFT] == FALSE)
     {
-        if (z < 4)
+        if (false == IntersectRect(&is, &x, &y))
         {
-            z += 1;
+            if (z < 4)
+            {
+                z += 1;
 
+            }
+            x.top += z;
+            x.bottom += z;
+            //InvalidateRect(hWnd, NULL, true);
         }
-        x.top += z;
-        x.bottom += z;
-        //InvalidateRect(hWnd, NULL, true);
-    }
-    else
-    {
-        z = 0;
-        p_jump = 0;
-    }
+        else if (true == IntersectRect(&is, &x, &y))
+        {
+            z = 0;
+            p_jump = 0;
+        }
 
+        if (KeyBuffer[VK_SPACE])
+        {
+            if (p_jump == 0)
+            {
+                x.top -= 4;
+                x.bottom -= 4;
+                z = -16;
+                p_jump = 1;
+            }
+        }
+    }
+    
+
+    ExitThread(0);
+    return(0);
+}
+
+DWORD WINAPI re_gravity(LPVOID param)
+{
+    HWND hWnd;
+    if (KeyBuffer[VK_SHIFT] == TRUE)
+    {
+        if (false == IntersectRect(&is, &x, &y_2))
+        {
+            if (z < 4)
+            {
+                z += 1;
+
+            }
+            x.top -= z;
+            x.bottom -= z;
+            //InvalidateRect(hWnd, NULL, true);
+        }
+        else if (true == IntersectRect(&is, &x, &y_2))
+        {
+            
+             z = 0;
+            p_jump = 0;
+        }
+
+        if (KeyBuffer[VK_SPACE])
+        {
+            if (p_jump == 0)
+            {
+                x.top += 4;
+                x.bottom += 4;
+                z = -16;
+                p_jump = 1;
+            }
+        }
+    }
+    
     ExitThread(0);
     return(0);
 }
@@ -184,44 +265,75 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
         case VK_LEFT:
 
-            x.left -= 4;
-            x.right -= 4;
+            KeyBuffer[wParam] = TRUE;
+
             break;
 
         case VK_RIGHT:
-            for(int i = 0; i < 10; i++)
-            {
-                x.left += 10;
-                x.right += 10;
-                InvalidateRect(hWnd, NULL, true);
-            }
+
+            KeyBuffer[wParam] = TRUE;
+
             break;
 
         case VK_SPACE:
 
-            if(p_jump == 0)
-            {
-                x.top -= 4;
-                x.bottom -= 4;
-                z = -16;
-                p_jump = 1;
-            }
+            KeyBuffer[wParam] = TRUE;
+
             break;
 
+        case VK_SHIFT:
+            if (KeyBuffer[wParam] == FALSE)
+            {
+                KeyBuffer[wParam] = TRUE;
+                break;
+            }
+            if (KeyBuffer[wParam] == TRUE)
+            {
+                KeyBuffer[wParam] = FALSE;
+                break;
+            }
+            break;
         }
     }
     break;
 
-    case WM_TIMER: 
+    case WM_KEYUP:
+    {
+        switch (wParam)
+        {
+        case VK_LEFT:
+
+            KeyBuffer[wParam] = FALSE;
+
+            break;
+
+        case VK_RIGHT:
+
+            KeyBuffer[wParam] = FALSE;
+
+            break;
+
+        case VK_SPACE:
+
+            KeyBuffer[wParam] = FALSE;
+
+            break;
+
+        }
+        break;
+
+    case WM_TIMER:
     {
 
         if (1 == wParam)
         {
             CreateThread(NULL, 0, gravity, (LPVOID)lParam, 0, NULL);
+            CreateThread(NULL, 0, re_gravity, (LPVOID)lParam, 0, NULL);
+            CreateThread(NULL, 0, moving, (LPVOID)lParam, 0, NULL);
         }
         InvalidateRect(hWnd, NULL, true);
     }
-     break;
+    break;
 
     case WM_CREATE:
     {
@@ -229,15 +341,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         g_timer = 1;
         SetTimer(hWnd, 1, g_timer, NULL);
 
+        KeyBuffer[VK_SHIFT] = FALSE;
+
         y.left = 10;
         y.top = 400;
         y.right = 500;
         y.bottom = 500;
 
+        y_2.left = 10;
+        y_2.top = 0;
+        y_2.right = 500;
+        y_2.bottom = 100;
+
         x.left = 10;
-        x.top = 10;
+        x.top = 200;
         x.right = 50;
-        x.bottom = 50;
+        x.bottom = 240;
 
 
 
@@ -252,8 +371,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
         Rectangle(hdc, y.left, y.top, y.right, y.bottom);
+        Rectangle(hdc, y_2.left, y_2.top, y_2.right, y_2.bottom);
         Rectangle(hdc, x.left, x.top, x.right, x.bottom);
-        
+
     }
     break;
     case WM_DESTROY:
@@ -263,8 +383,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
     return 0;
+    }
 }
-
 // 정보 대화 상자의 메시지 처리기입니다.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
