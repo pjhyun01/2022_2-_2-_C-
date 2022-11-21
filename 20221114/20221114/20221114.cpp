@@ -4,7 +4,10 @@
 #include "framework.h"
 #include "20221114.h"
 #include <thread>
+#include <stdio.h>
 #include <vector>
+#include "platform.h"
+
 
 #define MAX_LOADSTRING 100
 
@@ -124,21 +127,25 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - 종료 메시지를 게시하고 반환합니다.
 //
 //
+
 RECT x;
 RECT y;
 RECT y_2;
 RECT is;
-
+BOOL p_jump;
+BOOL gravity_check;
 
 
 int g_timer;
 int z = 0;
-int p_jump = 0;
 int g_speed = 0;
 
 BOOL KeyBuffer[256];
 
+DWORD WINAPI pf_touch(LPVOID param)
+{
 
+}
 
 DWORD WINAPI moving(LPVOID param)
 {
@@ -162,37 +169,52 @@ DWORD WINAPI moving(LPVOID param)
 
 DWORD WINAPI gravity(LPVOID param)
 {
+    
     if (KeyBuffer[VK_SHIFT] == FALSE)
     {
-        if (false == IntersectRect(&is, &x, &y))
-        {
-            if (z == 0) 
+        
+            if (false == IntersectRect(&is, &x, &y))
             {
-                z += 5;
+                if (z == 0)
+                {
+                    z += 5;
+                }
+                else if (z <= 10)
+                {
+                    z += 1;
+
+                }
+                x.top += z;
+                x.bottom += z;
+                //InvalidateRect(hWnd, NULL, true);
             }
-            else if (z <= 10)
+            else if (true == IntersectRect(&is, &x, &y))
             {
-                z += 1;
+                z = 0;
+                p_jump = FALSE;
+
+                if (is.top <= x.bottom)
+                {
+                    int k;
+                    k = x.bottom - is.top;
+                    x.top -= k - 1;
+                    x.bottom -= k - 1;
+                    is.top = x.bottom;
+
+                }
 
             }
-            x.top += z;
-            x.bottom += z;
-            //InvalidateRect(hWnd, NULL, true);
-        }
-        else if (true == IntersectRect(&is, &x, &y))
-        {
-            z = 0;
-            p_jump = 0;
-        }
+        
+        
 
         if (KeyBuffer[VK_SPACE])
         {
-            if (p_jump == 0)
+            if (p_jump == FALSE)
             {
                 x.top -= 4;
                 x.bottom -= 4;
                 z = -16;
-                p_jump = 1;
+                p_jump = TRUE;
             }
         }
 
@@ -205,6 +227,7 @@ DWORD WINAPI gravity(LPVOID param)
 
 DWORD WINAPI re_gravity(LPVOID param)
 {
+   
     if (KeyBuffer[VK_SHIFT] == TRUE)
     {
         
@@ -227,17 +250,27 @@ DWORD WINAPI re_gravity(LPVOID param)
         {
             
              z = 0;
-            p_jump = 0;
+            p_jump = FALSE;
+
+            if (is.bottom >= x.top)
+            {
+                int k;
+                k = is.bottom - x.top;
+                x.top += k - 1;
+                x.bottom += k - 1;
+                is.bottom = x.top;
+
+            }
         }
 
         if (KeyBuffer[VK_SPACE])
         {
-            if (p_jump == 0)
+            if (p_jump == FALSE)
             {
                 x.top += 4;
                 x.bottom += 4;
                 z = -16;
-                p_jump = 1;
+                p_jump = TRUE;
             }
         }
     }
@@ -291,6 +324,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             break;
 
         case VK_SHIFT:
+
             if (KeyBuffer[wParam] == FALSE)
             {
                 KeyBuffer[wParam] = TRUE;
@@ -301,6 +335,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 KeyBuffer[wParam] = FALSE;
                 break;
             }
+
             break;
         }
     }
@@ -328,6 +363,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
             break;
 
+        
         }
         break;
 
@@ -340,17 +376,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             CreateThread(NULL, 0, re_gravity, (LPVOID)lParam, 0, NULL);
             CreateThread(NULL, 0, moving, (LPVOID)lParam, 0, NULL);
         }
-        InvalidateRect(hWnd, NULL, true);
+        InvalidateRect(hWnd, NULL, false);
     }
     break;
 
     case WM_CREATE:
     {
-        p_jump = 0;
         g_timer = 1;
         SetTimer(hWnd, 1, g_timer, NULL);
 
         KeyBuffer[VK_SHIFT] = FALSE;
+        p_jump = FALSE;
+        gravity_check = TRUE;
 
         y.left = 10;
         y.top = 400;
@@ -376,13 +413,41 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
         PAINTSTRUCT ps;
 
-        HDC hdc = BeginPaint(hWnd, &ps);
-        // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+        static HDC hdc, MemDC, tmpDC;
+        static HBITMAP BackBit, oldBackBit;
+        static RECT bufferRT;
+        hdc = BeginPaint(hWnd, &ps);
 
+        GetClientRect(hWnd, &bufferRT);
+        MemDC = CreateCompatibleDC(hdc);
+        BackBit = CreateCompatibleBitmap(hdc, bufferRT.right, bufferRT.bottom);
+        oldBackBit = (HBITMAP)SelectObject(MemDC, BackBit);
+        PatBlt(MemDC, 0, 0, bufferRT.right, bufferRT.bottom, WHITENESS);
+        tmpDC = hdc;
+        hdc = MemDC;
+        MemDC = tmpDC;
+        
+        // TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
+        
         Rectangle(hdc, y.left, y.top, y.right, y.bottom);
+        
+        
         Rectangle(hdc, y_2.left, y_2.top, y_2.right, y_2.bottom);
+        
+        
         Rectangle(hdc, x.left, x.top, x.right, x.bottom);
 
+        tmpDC = hdc;
+        hdc = MemDC;
+        MemDC = tmpDC;
+        
+        GetClientRect(hWnd, &bufferRT);
+        BitBlt(hdc, 0, 0, bufferRT.right, bufferRT.bottom, MemDC, 0, 0, SRCCOPY);
+        SelectObject(MemDC, oldBackBit);
+        DeleteObject(BackBit);
+        DeleteDC(MemDC);
+        EndPaint(hWnd, &ps);
+        break;
     }
     break;
     case WM_DESTROY:

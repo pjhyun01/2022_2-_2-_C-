@@ -27,9 +27,18 @@
     <ClInclude Include="20221114.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="platformtouch.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="platform.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="20221114.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="platform.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
