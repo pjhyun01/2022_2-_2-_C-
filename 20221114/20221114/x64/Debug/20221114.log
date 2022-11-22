@@ -1,2 +1,4 @@
-﻿  platform.cpp
-  20221114.vcxproj -> C:\Users\YUHAN\Downloads\2022_2_C-_HW-main\2022_2_C-_HW-main\2022_2_C-_HW-main\2022_2_C-_HW-main\20221114\x64\Debug\20221114.exe
+﻿  20221114.cpp
+C:\Users\YUHAN\Downloads\2022_2_C-_HW-main (1)\2022_2_C-_HW-main\20221114\20221114\20221114.cpp(351,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\YUHAN\Downloads\2022_2_C-_HW-main (1)\2022_2_C-_HW-main\20221114\20221114\20221114.cpp(486): warning C4715: 'WndProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  20221114.vcxproj -> C:\Users\YUHAN\Downloads\2022_2_C-_HW-main (1)\2022_2_C-_HW-main\20221114\x64\Debug\20221114.exe

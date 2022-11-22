@@ -148,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="20221114.cpp" />
-    <ClCompile Include="platform.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="20221114.rc" />

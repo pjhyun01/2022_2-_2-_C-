@@ -38,9 +38,6 @@
     <ClCompile Include="20221114.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="platform.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="20221114.rc">
