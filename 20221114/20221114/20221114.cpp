@@ -132,35 +132,35 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 
 int g_timer;
+int g_timer_2;
 int j_power = 0;
 int g_speed = 0;
+int test = 0;
 
 BOOL p_jump;
 BOOL KeyBuffer[256];
-
+BOOL p_iscollision;
+BOOL g_check;
 
 
 struct Object
 {
 	int x;
 	int y;
-	int width;
 	int height;
-	BOOL iscollision;
+	int width;
 };
 
 Object p;
 Object player;
-Object y;
-Object y_2;
 
 vector<Object> objects;
 
-std::mutex m;
+HANDLE handle;
 
 bool IsCollision(Object a, Object b);
 void Create(Object object);
-void DrawObject(HDC hdc,Object object);
+void DrawObject(HDC hdc, Object object);
 
 DWORD WINAPI moving(LPVOID param)
 {
@@ -174,119 +174,99 @@ DWORD WINAPI moving(LPVOID param)
 		player.x += 4;
 	}
 
+	ExitThread(0);
+	return(0);
+}
 
+DWORD WINAPI JUMP(LPVOID param)
+{
+	if (KeyBuffer[VK_SPACE])
+	{
+		if (p_jump == FALSE)
+		{
+			if (false == KeyBuffer[VK_SHIFT])
+			{
+				player.y += 5;
+			}
+			if (true == KeyBuffer[VK_SHIFT])
+			{
+				player.y -= 5;
+			}
+			j_power = -16;
+			p_jump = TRUE;
+		}
+	}
 
 	ExitThread(0);
 	return(0);
 }
 
-DWORD WINAPI gravity(LPVOID param)
+DWORD WINAPI GRAVITY(LPVOID param)
 {
-
-	if (KeyBuffer[VK_SHIFT] == FALSE)
+	if (false == p_iscollision)
 	{
-
-		if (player.iscollision == FALSE)
+		if (j_power == 0)
 		{
-			if (j_power == 0)
-			{
-				j_power += 5;
-			}
-			else if (j_power <= 10)
-			{
-				j_power += 1;
-
-			}
-			player.y += j_power;
-			//InvalidateRect(hWnd, NULL, true);
+			j_power += 5;
 		}
-		else if (player.iscollision == TRUE)
+		else if (j_power <= 10)
 		{
-			j_power = 0;
-			p_jump = FALSE;
-
+			j_power += 1;
 		}
-
-
-
-		if (KeyBuffer[VK_SPACE])
-		{
-			if (p_jump == FALSE)
-			{
-				player.y -= 1;
-				j_power = -16;
-				p_jump = TRUE;
-			}
-		}
-
+		
 	}
 
-
-	ExitThread(0);
-	return(0);
-}
-
-DWORD WINAPI re_gravity(LPVOID param)
-{
-
-	if (KeyBuffer[VK_SHIFT] == TRUE)
+	if (false == KeyBuffer[VK_SHIFT])
 	{
-
-		if (false == IsCollision(player,y_2))
-		{
-			if (j_power == 0)
-			{
-				j_power += 5;
-			}
-			else if (j_power <= 10)
-			{
-				j_power += 1;
-
-			}
-			player.y -= j_power;
-			//InvalidateRect(hWnd, NULL, true);
-		}
-		else if (true == IsCollision(player, y_2))
-		{
-
-			j_power = 0;
-			p_jump = FALSE;
-
-		}
-
-		if (KeyBuffer[VK_SPACE])
-		{
-			if (p_jump == FALSE)
-			{
-				player.y += 1;
-				j_power = -16;
-				p_jump = TRUE;
-			}
-		}
+		player.y += j_power;
 	}
 
-	ExitThread(0);
+	if (true == KeyBuffer[VK_SHIFT])
+	{
+		player.y -= j_power;
+	}
+
+	else if (true == p_iscollision)
+	{
+		j_power = 0;
+		p_jump = FALSE;
+	}
+
 	return(0);
 }
 
 DWORD WINAPI ISCOLLISION(LPVOID param)
 {
-	
-	for (size_t j = 0; j < objects.size(); j++)
+	while (1)
+	{
+		for (size_t i = 0; i < objects.size(); i++)
 		{
-			if (true == IsCollision(player, objects[j]))
+			if (IsCollision(player, objects[i]))
 			{
-				player.iscollision = TRUE;
-				objects[j].iscollision = TRUE;
+				SuspendThread(handle);
+				p_iscollision = true;
+				if (player.y + player.height / 2 >= objects[i].y - objects[i].height / 2 && player.y - player.height / 2 <= objects[i].y + objects[i].height / 2)
+				{
+					if (player.y > objects[i].y) 
+					{
+						player.y += (objects[i].y + objects[i].height / 2) - (player.y - player.height / 2);
+					}
+					else if (player.y < objects[i].y)
+					{
+						player.y -= (player.y + player.height / 2) - (objects[i].y - objects[i].height / 2);
+					}
+				}
+				
+				
 			}
-			else if (false == IsCollision(player, objects[j]))
+			else
 			{
-				player.iscollision = FALSE;
-				objects[j].iscollision = FALSE;
+				ResumeThread(handle);
+				p_iscollision = false;
 			}
 		}
 
-	ExitThread(0);
+	}
 	return(0);
 }
 
@@ -302,41 +282,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		KeyBuffer[VK_SHIFT] = FALSE;
 		p_jump = FALSE;
-
-		y.x = 250;
-		y.y = 450;
-		y.width = 500;
-		y.height = 100;
-
-		y_2.x = 250;
-		y_2.y = 50;
-		y_2.width = 500;
-		y_2.height = 100;
+		p_iscollision = FALSE;
+		g_check = true;
 
 		player.x = 30;
 		player.y = 150;
 		player.width = 20;
 		player.height = 30;
-		player.iscollision = FALSE;
-		
-		
-		objects.push_back(y);
-		objects.push_back(y_2);
+
+		Create({ 250, 450, 20 ,500 });
+		Create({ 250, 50, 20, 500 });
+		Create({ 250, 250, 20, 100 });
+		Create({ 100, 250, 20 ,100 });
+		Create({ 400, 250, 20 ,100 });
+
 		//objects.push_back(p);
 		//objects[0].x = 200;
 		//objects[0].y = 200;
 		//objects[0].width = 32;
 		//objects[0].height = 32;
 
-		
+
 
 		//vector<Object>::iterator iter = objects.begin();
 		//for (; iter != objects.end();)
 		//{
 		// 
 		//}
-
-		//Create({ 0, 0, 32, 32 });
+		CreateThread(NULL, 0, ISCOLLISION, (LPVOID)lParam, 0, NULL);
 	}
 	break;
 
@@ -379,11 +352,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (KeyBuffer[wParam] == FALSE)
 			{
 				KeyBuffer[wParam] = TRUE;
+				player.y -= 5;
 				break;
 			}
 			if (KeyBuffer[wParam] == TRUE)
 			{
 				KeyBuffer[wParam] = FALSE;
+				player.y += 5;
 				break;
 			}
 
@@ -420,19 +395,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 	case WM_TIMER:
 	{
-
 		if (1 == wParam)
 		{
-			CreateThread(NULL, 0, gravity, (LPVOID)lParam, 0, NULL);
-			CreateThread(NULL, 0, re_gravity, (LPVOID)lParam, 0, NULL);
+			CreateThread(NULL, 0, JUMP, (LPVOID)lParam, 0, NULL);
 			CreateThread(NULL, 0, moving, (LPVOID)lParam, 0, NULL);
-			CreateThread(NULL, 0, ISCOLLISION, (LPVOID)lParam, 0, NULL);
+			handle = CreateThread(NULL, 0, GRAVITY, (LPVOID)lParam, 0, NULL);
+			//if (p_iscollision == true)
+			//{
+				//SuspendThread(GRAVITY);
+				//g_check = false;
+				
+			//}
+			//if (p_iscollision == false || g_check == false)
+			//{
+				//ResumeThread(GRAVITY);
+				//g_check = true;
+				
+			//}
+
 		}
+
 		InvalidateRect(hWnd, NULL, false);
 	}
 	break;
 
-	
+
 	case WM_PAINT:
 	{
 		PAINTSTRUCT ps;
@@ -453,15 +440,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		// TODO: 여기에 hdc를 사용하는 그리기 코드를 추가합니다...
 
-		DrawObject(hdc, y);
-		DrawObject(hdc, y_2);
+
+		for (size_t i = 0; i < objects.size(); i++)
+		{
+			DrawObject(hdc, objects[i]);
+		}
+
 		DrawObject(hdc, player);
-		
+
 		//for (size_t i = 0; i < objects.size(); i++)
 		//{
 			//DrawObject(hdc, objects[i]);
 		//}
-	
+
 		tmpDC = hdc;
 		hdc = MemDC;
 		MemDC = tmpDC;
@@ -487,16 +478,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 bool IsCollision(Object a, Object b)
 {
-	if (a.y - a.height/2 <= b.y + y.height/2 &&
-		a.x + a.width/2 >= b.x - b.width / 2 &&
-		a.x - a.width /2  <= b.x + b.width /2 &&
-		a.y + a.height/2 >= b.y - b.height/2)
+	if (a.y - a.height / 2 <= b.y + b.height / 2 &&
+		a.x + a.width / 2 >= b.x - b.width / 2 &&
+		a.x - a.width / 2 <= b.x + b.width / 2 &&
+		a.y + a.height / 2 >= b.y - b.height / 2)
 	{
 		return true;
 	}
 
-	else
-		return false;
+	return false;
 }
 
 void Create(Object object)
@@ -504,7 +494,7 @@ void Create(Object object)
 	objects.push_back(object);
 }
 
-void DrawObject(HDC hdc,Object object)
+void DrawObject(HDC hdc, Object object)
 {
 	Rectangle(hdc, object.x - object.width / 2, object.y - object.height / 2, object.x + object.width / 2, object.y + object.height / 2);
 }
