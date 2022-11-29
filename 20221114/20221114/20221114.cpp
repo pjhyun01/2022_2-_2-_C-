@@ -6,8 +6,7 @@
 #include <thread>
 #include <stdio.h>
 #include <vector>
-#include "platform.h"
-#include <mutex>
+#include <cmath>
 
 using namespace std;
 
@@ -135,7 +134,7 @@ int g_timer;
 int g_timer_2;
 int j_power = 0;
 int g_speed = 0;
-int test = 0;
+
 
 BOOL p_jump;
 BOOL KeyBuffer[256];
@@ -151,16 +150,33 @@ struct Object
 	int width;
 };
 
-Object p;
+struct Spike
+{
+	int x;
+	int y;
+	int line;
+};
+
+POINT SpikePoints[3];
+
+Object test;
 Object player;
+Object finish;
+Spike spike;
+Spike revspike;
 
 vector<Object> objects;
+vector<Spike> spikes;
 
 HANDLE handle;
 
 bool IsCollision(Object a, Object b);
+bool IsTouchSpike(Spike a, Object b);
+
 void Create(Object object);
 void DrawObject(HDC hdc, Object object);
+void DrawSpike(HDC hdc, Spike spike);
+void RevDrawSpike(HDC hdc, Spike spike);
 
 DWORD WINAPI moving(LPVOID param)
 {
@@ -255,6 +271,7 @@ DWORD WINAPI ISCOLLISION(LPVOID param)
 					{
 						player.y -= (player.y + player.height / 2) - (objects[i].y - objects[i].height / 2);
 					}
+					p_jump = false;
 				}
 				
 				
@@ -269,6 +286,8 @@ DWORD WINAPI ISCOLLISION(LPVOID param)
 	}
 	return(0);
 }
+
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -285,10 +304,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		p_iscollision = FALSE;
 		g_check = true;
 
+		test.x = 0;
+		test.y = 0;
+		test.width = 30;
+		test.height = 30;
+
 		player.x = 30;
 		player.y = 150;
 		player.width = 20;
 		player.height = 30;
+
+		finish.x = 500;
+		finish.y = 400;
+		finish.width = 30;
+		finish.height = 30;
+
+		spike.x = 150;
+		spike.y = 450;
+		spike.line = 50;
+
+		revspike.x = 200;
+		revspike.y = 100;
+		revspike.line = 50;
 
 		Create({ 250, 450, 20 ,500 });
 		Create({ 250, 50, 20, 500 });
@@ -400,18 +437,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			CreateThread(NULL, 0, JUMP, (LPVOID)lParam, 0, NULL);
 			CreateThread(NULL, 0, moving, (LPVOID)lParam, 0, NULL);
 			handle = CreateThread(NULL, 0, GRAVITY, (LPVOID)lParam, 0, NULL);
-			//if (p_iscollision == true)
-			//{
-				//SuspendThread(GRAVITY);
-				//g_check = false;
-				
-			//}
-			//if (p_iscollision == false || g_check == false)
-			//{
-				//ResumeThread(GRAVITY);
-				//g_check = true;
-				
-			//}
+			if (IsTouchSpike(spike, player))
+			{
+				test.x = 50;
+			}
+			else
+			{
+				test.x = 0;
+			}
+
+			if (IsCollision(player, finish))
+			{
+				KillTimer(hWnd, 1);
+				MessageBox(hWnd, L"끝났습니다.", L"아마도", MB_OK);
+			}
 
 		}
 
@@ -447,6 +486,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		DrawObject(hdc, player);
+		DrawObject(hdc, finish);
+		DrawSpike(hdc, spike);
+		RevDrawSpike(hdc, revspike);
+		DrawObject(hdc, test);
 
 		//for (size_t i = 0; i < objects.size(); i++)
 		//{
@@ -489,6 +532,37 @@ bool IsCollision(Object a, Object b)
 	return false;
 }
 
+bool IsTouchSpike(Spike a, Object b)
+{
+	if (a.y - a.line / 2 <= b.y + b.height / 2 &&
+		a.x + a.line / 2 >= b.x - b.width / 2 &&
+		a.x - a.line / 2 <= b.x + b.width / 2 &&
+		a.y + a.line / 2 >= b.y - b.height / 2)
+	{
+		for (double i = 0; i <= a.line / 2; i++)
+		{
+			double y = (-sqrt(3)) * (i - (static_cast<__int64>(a.x) - a.line / 2)) + a.y + a.line * (2 * sqrt(3) / 3);
+
+			if (static_cast<__int64>(b.y) + static_cast<__int64>(b.height) / 2 >= y || static_cast<__int64>(b.x) + static_cast<__int64>(b.width / 2) >= i)
+			{
+				return true;
+			}
+		}
+		for (double i = a.x; i <= a.line; i++)
+		{
+			double y = sqrt(3) * (i - a.x) + a.y - a.line / sqrt(3);
+
+			if (static_cast<__int64>(b.y) + static_cast<__int64>(b.height / 2) >= y || static_cast<__int64>(b.x) - static_cast<__int64>(b.width) / 2 >= i)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	return false;
+}
+
 void Create(Object object)
 {
 	objects.push_back(object);
@@ -499,3 +573,30 @@ void DrawObject(HDC hdc, Object object)
 	Rectangle(hdc, object.x - object.width / 2, object.y - object.height / 2, object.x + object.width / 2, object.y + object.height / 2);
 }
 
+void DrawSpike(HDC hdc, Spike spike)
+{
+	SpikePoints[0].x = spike.x;
+	SpikePoints[0].y = spike.y - (spike.line / sqrt(3));
+
+	SpikePoints[1].x = spike.x - (spike.line / 2);
+	SpikePoints[1].y = spike.y + spike.line / (2 * sqrt(3));
+
+	SpikePoints[2].x = spike.x + (spike.line / 2);
+	SpikePoints[2].y = spike.y + spike.line / (2 * sqrt(3));
+
+	Polygon(hdc, SpikePoints, 3);
+}
+
+void RevDrawSpike(HDC hdc, Spike spike)
+{
+	SpikePoints[0].x = spike.x;
+	SpikePoints[0].y = spike.y + (spike.line / sqrt(3));
+
+	SpikePoints[1].x = spike.x - (spike.line / 2);
+	SpikePoints[1].y = spike.y - spike.line / (2 * sqrt(3));
+
+	SpikePoints[2].x = spike.x + (spike.line / 2);
+	SpikePoints[2].y = spike.y - spike.line / (2 * sqrt(3));
+
+	Polygon(hdc, SpikePoints, 3);
+}
