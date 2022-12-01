@@ -1,0 +1,17 @@
+﻿  20221114.cpp
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(200,19): warning C4805: '==': 연산에 'BOOL' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(235,34): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(263,33): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(273,19): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(282,33): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(502,21): warning C4805: '==': 연산에 'BOOL' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(571,20): warning C4805: '==': 연산에 'BOOL' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(422,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(706,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(709,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(712,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(720,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(723,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(726,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\YUHAN\Downloads\20221114\20221114\20221114.cpp(607): warning C4715: 'WndProc': 모든 제어 경로에서 값을 반환하지는 않습니다.
+  20221114.vcxproj -> C:\Users\YUHAN\Downloads\20221114\x64\Debug\20221114.exe
