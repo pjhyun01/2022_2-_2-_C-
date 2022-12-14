@@ -1,0 +1,16 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: 중간 디렉터리(x64\Debug\)에 다른 프로젝트(20221114.vcxproj)에서 공유하는 파일이 포함되어 있습니다.  이로 인해 잘못된 정리 및 다시 빌드 동작이 수행될 수 있습니다.
+  platformer_main.cpp
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(253,16): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(279,15): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(288,19): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(296,15): warning C4805: '==': 연산에 'bool' 형식과 'BOOL' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(327,21): warning C4805: '==': 연산에 'BOOL' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(559,21): warning C4805: '==': 연산에 'BOOL' 형식과 'bool' 형식을 함께 사용하는 것은 안전하지 않습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(473,3): warning C4065: switch문에 'default'가 있으나 'case' 레이블이 없습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(773,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(776,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(779,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(787,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(790,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\20221114\platformer_main.cpp(793,29): warning C4244: '=': 'double'에서 'LONG'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  20221114.vcxproj -> C:\Users\kakak\Desktop\2022_2_C-_HW-main (2)\2022_2_C-_HW-main\20221214-final\20221114\x64\Debug\2022_platformer_final.exe
